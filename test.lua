@@ -10,6 +10,12 @@ engine.name = "PolySub"
 local polysub = require "we/lib/polysub"
 
 local ArcParams = require "arc_params/lib/arc_params"
+local a = arc.connect()
+local arc_params = ArcParams.new(a)
+
+function a.delta(n, delta)
+    arc_params:update(n, delta)
+end
 
 local start_note = {}
 local end_note = {}
