@@ -10,7 +10,6 @@ engine.name = "PolySub"
 local polysub = require "we/lib/polysub"
 
 local ArcParams = require "arc_params/lib/arc_params"
-
 package.loaded["arc_params/lib/arc_params"] = nil
 
 local a = arc.connect()

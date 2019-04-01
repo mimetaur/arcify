@@ -264,12 +264,16 @@ function ArcParams:register(name_, scale_, is_rounded_)
     local np = {}
 
     if p.t == types.tNUMBER then
+        print(p.id .. " is number")
         self.params_[name_] = build_number_param(p, scale_, is_rounded_)
     elseif p.t == types.tOPTION then
+        print(p.id .. " is option")
         self.params_[name_] = build_option_param(p)
     elseif p.t == types.tCONTROL then
+        print(p.id .. " is control")
         self.params_[name_] = build_control_param(p, scale_, is_rounded_)
     elseif p.t == types.tTAPER then
+        print(p.id .. " is taper")
         self.params_[name_] = build_taper_param(p, scale_, is_rounded_)
     else
         print("Referencing invalid param. May be an unsupported type. Not registered.")
