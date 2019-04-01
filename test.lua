@@ -15,12 +15,13 @@ local start_note = {}
 local end_note = {}
 
 local function start_note()
-    local f = math.random(400, 1200)
+    local f = math.random(400, 500)
     engine.start(1, f)
     end_note:start()
 end
 
 local function end_note()
+    engine.stop(1)
 end
 
 function init()
@@ -28,8 +29,8 @@ function init()
 
     arc_params:register("cut")
     arc_params:register("level")
+    arc_params:register("amprel")
     arc_params:register("timbre")
-    arc_params:register("detune")
     arc_params:add_arc_params()
 
     start_note = metro.init(start_note, 4, -1)
