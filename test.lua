@@ -9,8 +9,10 @@ engine.name = "PolySub"
 
 local polysub = require "we/lib/polysub"
 
+-- useful while library is in active development
 package.loaded["arc_params/lib/arc_params"] = nil
 ArcParams = nil
+
 local ArcParams = require "arc_params/lib/arc_params"
 local speed = 0.4
 
