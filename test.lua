@@ -10,6 +10,9 @@ engine.name = "PolySub"
 local polysub = require "we/lib/polysub"
 
 local ArcParams = require "arc_params/lib/arc_params"
+
+package.loaded["arc_params/lib/arc_params"] = nil
+
 local a = arc.connect()
 local arc_params = ArcParams.new(a)
 
@@ -17,18 +20,20 @@ function a.delta(n, delta)
     arc_params:update(n, delta)
 end
 
-local start_note = {}
-local end_note = {}
-
 local function start_note()
     local f = math.random(400, 500)
+    print(f)
     engine.start(1, f)
-    end_note:start()
+    end_note_clock:start()
 end
 
 local function end_note()
+    print("stopping")
     engine.stop(1)
 end
+
+start_note_clock = metro.init(start_note, 2, -1)
+end_note_clock = metro.init(end_note, 1, 1)
 
 function init()
     polysub:params()
@@ -39,9 +44,6 @@ function init()
     arc_params:register("timbre")
     arc_params:add_arc_params()
 
-    start_note = metro.init(start_note, 4, -1)
-    end_note = metro.init(end_note, 2, 1)
-
     engine.stopAll()
-    start_note:start()
+    start_note_clock:start()
 end

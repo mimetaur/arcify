@@ -98,7 +98,7 @@ local function build_control_param(p, scale, is_rounded)
     newp.name = p.id
     newp.min = cs.minval
     newp.max = cs.maxval
-    newp.scale = scale
+    newp.scale = scale or 0.5
     newp.is_rounded = is_rounded
 
     return newp
