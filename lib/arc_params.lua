@@ -10,6 +10,7 @@ local DEFAULT_INTENSITY = 12
 local NO_ASSIGMENT = "none"
 local VALID_ORIENTATIONS = {0, 180}
 local INTEGER_SCALE_FACTOR = 0.000001
+local DEFAULT_SCALE = 0.001
 
 -- utility functions
 local function is_valid_orientation(orientation)
@@ -48,6 +49,7 @@ end
 local function build_option_param(p)
     local newp = {}
 
+    newp.friendly_name = p.name
     newp.name = p.id
     newp.min = 1
     newp.max = p.count
@@ -60,6 +62,7 @@ end
 local function build_number_param(p, scale, is_rounded)
     local newp = {}
 
+    newp.friendly_name = p.name
     newp.name = p.id
     newp.min = p.min
     newp.max = p.max
@@ -69,7 +72,7 @@ local function build_number_param(p, scale, is_rounded)
             scale = (1 / (max - min)) * INTEGER_SCALE_FACTOR
         end
     end
-    newp.scale = scale or 0.5
+    newp.scale = scale or DEFAULT_SCALE
 
     return newp
 end
@@ -77,6 +80,7 @@ end
 local function build_taper_param(p, scale, is_rounded)
     local newp = {}
 
+    newp.friendly_name = p.name
     newp.name = p.id
     newp.min = p.min
     newp.max = p.max
@@ -86,7 +90,7 @@ local function build_taper_param(p, scale, is_rounded)
             scale = (1 / (max - min)) * INTEGER_SCALE_FACTOR
         end
     end
-    newp.scale = scale or 0.5
+    newp.scale = scale or DEFAULT_SCALE
 
     return newp
 end
@@ -95,10 +99,12 @@ local function build_control_param(p, scale, is_rounded)
     local cs = p.controlspec
 
     local newp = {}
+
+    newp.friendly_name = p.name
     newp.name = p.id
     newp.min = cs.minval
     newp.max = cs.maxval
-    newp.scale = scale or 0.5
+    newp.scale = scale or DEFAULT_SCALE
     newp.is_rounded = is_rounded
 
     return newp
@@ -144,7 +150,7 @@ local function redraw_ring(self, num, e)
     end
 end
 
-local function redraw(self)
+local function redraw_all(self)
     self.a_:all(0)
     if self.is_active_ then
         for num, name in ipairs(self.encoders_) do
@@ -186,10 +192,6 @@ local function build_encoder_mapping_param(self, encoder_num)
             end
         end
     }
-    local default_num = encoder_num + 1
-    if default_num <= #opts then
-        params:set(param_id, default_num)
-    end
 end
 
 local function build_orientation_param(self)
@@ -215,11 +217,10 @@ function ArcParams.new(a)
     ap.orientation_ = 0
 
     local function redraw_callback()
-        redraw(ap)
+        redraw_all(ap)
     end
 
-    -- local rate = 1 / 120
-    local rate = 1
+    local rate = 1 / 10 -- 10 fps
     ap.on_redraw_ = metro.init(redraw_callback, rate, -1)
     ap.on_redraw_:start()
     setmetatable(ap, ArcParams)
@@ -231,6 +232,29 @@ function ArcParams:add_arc_params()
     build_orientation_param(self)
     for i = 1, 4 do
         build_encoder_mapping_param(self, i)
+    end
+
+    -- defaults
+    local options_index = {}
+    for i, opt in ipairs(params_as_options(self)) do
+        options_index[opt] = i
+    end
+
+    for i = 1, 4 do
+        local enc = self.encoders_[i]
+        if enc then
+            local id = "arc_encoder" .. i .. "_mapping"
+            local value = options_index[enc]
+            print(id, value, enc)
+            params:set(id, value)
+        end
+    end
+end
+
+function ArcParams:register_at(encoder_num_, name_, scale_, is_rounded_)
+    local status = self:register(name_, scale_, is_rounded_)
+    if status then
+        self:map_encoder(encoder_num_, name_)
     end
 end
 
@@ -264,20 +288,18 @@ function ArcParams:register(name_, scale_, is_rounded_)
     local np = {}
 
     if p.t == types.tNUMBER then
-        print(p.id .. " is number")
         self.params_[name_] = build_number_param(p, scale_, is_rounded_)
     elseif p.t == types.tOPTION then
-        print(p.id .. " is option")
         self.params_[name_] = build_option_param(p)
     elseif p.t == types.tCONTROL then
-        print(p.id .. " is control")
         self.params_[name_] = build_control_param(p, scale_, is_rounded_)
     elseif p.t == types.tTAPER then
-        print(p.id .. " is taper")
         self.params_[name_] = build_taper_param(p, scale_, is_rounded_)
     else
         print("Referencing invalid param. May be an unsupported type. Not registered.")
+        return
     end
+    return true
 end
 
 function ArcParams:map_encoder(position, param_name)
@@ -319,6 +341,17 @@ function ArcParams:update(num, delta)
         end
         local value = params:get(param.name) + new_delta
         params:set(param.name, value)
+    end
+end
+
+function ArcParams:param_id_at_encoder(enc_num)
+    return self.encoders_[enc_num]
+end
+
+function ArcParams:param_name_at_encoder(enc_num)
+    local id = self.encoders_[enc_num]
+    if id then
+        return self.params_[id].friendly_name
     end
 end
 
