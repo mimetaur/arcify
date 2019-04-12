@@ -208,14 +208,24 @@ local function build_orientation_param(self)
 end
 
 --- Create a new ArcParams object.
-function ArcParams.new(a)
+function ArcParams.new(a, do_update_self)
     local ap = {}
     ap.a_ = a
     ap.params_ = {}
     ap.encoders_ = default_encoder_state()
     ap.is_active_ = true
     ap.orientation_ = 0
+    ap.do_update_self_ = do_update_self or true
 
+    if ap.do_update_self_ then
+        local function redraw_callback()
+            redraw_all(ap)
+        end
+
+        local rate = 1 / 30 -- 30 fps
+        ap.on_redraw_ = metro.init(redraw_callback, rate, -1)
+        ap.on_redraw_:start()
+    end
     setmetatable(ap, ArcParams)
     return ap
 end
