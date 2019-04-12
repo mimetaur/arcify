@@ -216,13 +216,6 @@ function ArcParams.new(a)
     ap.is_active_ = true
     ap.orientation_ = 0
 
-    local function redraw_callback()
-        redraw_all(ap)
-    end
-
-    local rate = 1 / 10 -- 10 fps
-    ap.on_redraw_ = metro.init(redraw_callback, rate, -1)
-    ap.on_redraw_:start()
     setmetatable(ap, ArcParams)
     return ap
 end
@@ -380,6 +373,10 @@ function ArcParams:change_orientation(new_orientation)
         self.orientation_ = new_orientation
         flip_encoder_order(self)
     end
+end
+
+function ArcParams:redraw()
+    redraw_all(self)
 end
 
 return ArcParams
