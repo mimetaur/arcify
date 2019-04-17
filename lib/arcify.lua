@@ -1,5 +1,5 @@
-local ArcParams = {}
-ArcParams.__index = ArcParams
+local Arcify = {}
+Arcify.__index = Arcify
 
 -- constants
 local LO_LED = 1
@@ -207,8 +207,8 @@ local function build_orientation_param(self)
     }
 end
 
---- Create a new ArcParams object.
-function ArcParams.new(a, do_update_self)
+--- Create a new Arcify object.
+function Arcify.new(a, do_update_self)
     local ap = {}
     ap.a_ = a
     ap.params_ = {}
@@ -226,11 +226,11 @@ function ArcParams.new(a, do_update_self)
         ap.on_redraw_ = metro.init(redraw_callback, rate, -1)
         ap.on_redraw_:start()
     end
-    setmetatable(ap, ArcParams)
+    setmetatable(ap, Arcify)
     return ap
 end
 
-function ArcParams:add_arc_params()
+function Arcify:add_arc_params()
     params:add_separator()
     build_orientation_param(self)
     for i = 1, 4 do
@@ -254,14 +254,14 @@ function ArcParams:add_arc_params()
     end
 end
 
-function ArcParams:register_at(encoder_num_, name_, scale_, is_rounded_)
+function Arcify:register_at(encoder_num_, name_, scale_, is_rounded_)
     local status = self:register(name_, scale_, is_rounded_)
     if status then
         self:map_encoder(encoder_num_, name_)
     end
 end
 
-function ArcParams:register(name_, scale_, is_rounded_)
+function Arcify:register(name_, scale_, is_rounded_)
     if not name_ then
         print("Param is missing a name. Not registered.")
         return
@@ -305,7 +305,7 @@ function ArcParams:register(name_, scale_, is_rounded_)
     return true
 end
 
-function ArcParams:map_encoder(position, param_name)
+function Arcify:map_encoder(position, param_name)
     if param_name == "none" then
         return
     elseif position < 1 or position > 4 then
@@ -318,7 +318,7 @@ function ArcParams:map_encoder(position, param_name)
     self.encoders_[position] = param_name
 end
 
-function ArcParams:clear_encoder_mapping(position)
+function Arcify:clear_encoder_mapping(position)
     if position < 1 or position > 4 then
         print("Invalid arc encoder number: " .. position)
         return
@@ -326,12 +326,12 @@ function ArcParams:clear_encoder_mapping(position)
     self.encoders_[position] = false
 end
 
-function ArcParams:clear_all_encoder_mappings()
+function Arcify:clear_all_encoder_mappings()
     self.encoders_ = default_encoder_state()
 end
 
 --- Update a particular encoder
-function ArcParams:update(num, delta)
+function Arcify:update(num, delta)
     if not self.is_active_ then
         return
     end
@@ -347,30 +347,30 @@ function ArcParams:update(num, delta)
     end
 end
 
-function ArcParams:param_id_at_encoder(enc_num)
+function Arcify:param_id_at_encoder(enc_num)
     return self.encoders_[enc_num]
 end
 
-function ArcParams:param_name_at_encoder(enc_num)
+function Arcify:param_name_at_encoder(enc_num)
     local id = self.encoders_[enc_num]
     if id then
         return self.params_[id].friendly_name
     end
 end
 
-function ArcParams:is_active()
+function Arcify:is_active()
     return self.is_active_
 end
 
-function ArcParams:activate()
+function Arcify:activate()
     self.is_active_ = true
 end
 
-function ArcParams:deactivate()
+function Arcify:deactivate()
     self.is_active_ = false
 end
 
-function ArcParams:toggle_orientation()
+function Arcify:toggle_orientation()
     if self.orientation_ == 0 then
         self:change_orientation(180)
     else
@@ -378,15 +378,15 @@ function ArcParams:toggle_orientation()
     end
 end
 
-function ArcParams:change_orientation(new_orientation)
+function Arcify:change_orientation(new_orientation)
     if is_valid_orientation(new_orientation) then
         self.orientation_ = new_orientation
         flip_encoder_order(self)
     end
 end
 
-function ArcParams:redraw()
+function Arcify:redraw()
     redraw_all(self)
 end
 
-return ArcParams
+return Arcify
