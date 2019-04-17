@@ -160,27 +160,32 @@ local function build_encoder_mapping_param(self, encoder_num)
 end
 
 --- Create a new Arcify object.
-function Arcify.new(a, do_update_self)
+function Arcify.new(arc_obj, update_self, update_rate)
     local ap = {}
-    ap.a_ = a
+    ap.a_ = arc_obj or arc.connect()
     ap.params_ = {}
     ap.encoders_ = default_encoder_state()
-    ap.do_update_self_ = do_update_self or true
+    ap.update_self_ = do_update_self or true -- create a callback by default
+    ap.update_rate_ = update_rate or 1 / 25 -- 25 fps default
 
-    if ap.do_update_self_ then
+    if ap.update_self_ then
         local function redraw_callback()
             redraw_all(ap)
         end
 
-        local rate = 1 / 30 -- 30 fps
-        ap.on_redraw_ = metro.init(redraw_callback, rate, -1)
+        ap.on_redraw_ = metro.init(redraw_callback, ap.update_rate_, -1)
         ap.on_redraw_:start()
     end
+
+    function ap.a_.delta(n, delta)
+        ap:update(n, delta)
+    end
+
     setmetatable(ap, Arcify)
     return ap
 end
 
-function Arcify:add_arc_params()
+function Arcify:add_params()
     params:add_separator()
     for i = 1, 4 do
         build_encoder_mapping_param(self, i)
@@ -200,13 +205,6 @@ function Arcify:add_arc_params()
             print(id, value, enc)
             params:set(id, value)
         end
-    end
-end
-
-function Arcify:register_at(encoder_num_, name_, scale_, is_rounded_)
-    local status = self:register(name_, scale_, is_rounded_)
-    if status then
-        self:map_encoder(encoder_num_, name_)
     end
 end
 
