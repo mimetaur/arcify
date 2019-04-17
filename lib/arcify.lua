@@ -13,16 +13,6 @@ local INTEGER_SCALE_FACTOR = 0.000001
 local DEFAULT_SCALE = 0.001
 
 -- utility functions
-local function is_valid_orientation(orientation)
-    local is_valid = false
-    for _, valid_orientation in ipairs(VALID_ORIENTATIONS) do
-        if orientation == valid_orientation then
-            is_valid = true
-        end
-    end
-    return is_valid
-end
-
 local function round_delta(delta)
     if delta > 0 then
         return math.ceil(delta)
@@ -112,32 +102,9 @@ end
 
 -- private methods
 local function draw_leds(self, num, amount, intensity)
-    local orient = self.orientation_
-
-    if orient == 0 then
-        for i = LO_LED, amount do
-            self.a_:led(num, i, intensity)
-        end
-    elseif orient == 180 then
-        local offset = 32
-        for i = offset, offset + amount do
-            local val = i
-            if val > 64 then
-                val = val - 64
-            end
-            self.a_:led(num, val, intensity)
-        end
+    for i = LO_LED, amount do
+        self.a_:led(num, i, intensity)
     end
-end
-
-local function flip_encoder_order(self)
-    local new_encoders = default_encoder_state()
-    local j = 4
-    for i = 1, 4 do
-        new_encoders[j] = self.encoders_[i]
-        j = j - 1
-    end
-    self.encoders_ = new_encoders
 end
 
 local function redraw_ring(self, num, e)
@@ -194,19 +161,6 @@ local function build_encoder_mapping_param(self, encoder_num)
     }
 end
 
-local function build_orientation_param(self)
-    params:add {
-        type = "option",
-        id = "arc_orientation",
-        name = "arc orientation",
-        options = VALID_ORIENTATIONS,
-        default = 1,
-        action = function(value)
-            self:change_orientation(VALID_ORIENTATIONS[value])
-        end
-    }
-end
-
 --- Create a new Arcify object.
 function Arcify.new(a, do_update_self)
     local ap = {}
@@ -214,7 +168,6 @@ function Arcify.new(a, do_update_self)
     ap.params_ = {}
     ap.encoders_ = default_encoder_state()
     ap.is_active_ = true
-    ap.orientation_ = 0
     ap.do_update_self_ = do_update_self or true
 
     if ap.do_update_self_ then
@@ -232,7 +185,6 @@ end
 
 function Arcify:add_arc_params()
     params:add_separator()
-    build_orientation_param(self)
     for i = 1, 4 do
         build_encoder_mapping_param(self, i)
     end
@@ -368,21 +320,6 @@ end
 
 function Arcify:deactivate()
     self.is_active_ = false
-end
-
-function Arcify:toggle_orientation()
-    if self.orientation_ == 0 then
-        self:change_orientation(180)
-    else
-        self:change_orientation(0)
-    end
-end
-
-function Arcify:change_orientation(new_orientation)
-    if is_valid_orientation(new_orientation) then
-        self.orientation_ = new_orientation
-        flip_encoder_order(self)
-    end
 end
 
 function Arcify:redraw()
