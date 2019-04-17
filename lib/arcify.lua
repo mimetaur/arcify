@@ -119,12 +119,10 @@ end
 
 local function redraw_all(self)
     self.a_:all(0)
-    if self.is_active_ then
-        for num, name in ipairs(self.encoders_) do
-            local param = self.params_[name]
-            if param then
-                redraw_ring(self, num, param)
-            end
+    for num, name in ipairs(self.encoders_) do
+        local param = self.params_[name]
+        if param then
+            redraw_ring(self, num, param)
         end
     end
     self.a_:refresh()
@@ -167,7 +165,6 @@ function Arcify.new(a, do_update_self)
     ap.a_ = a
     ap.params_ = {}
     ap.encoders_ = default_encoder_state()
-    ap.is_active_ = true
     ap.do_update_self_ = do_update_self or true
 
     if ap.do_update_self_ then
@@ -284,9 +281,6 @@ end
 
 --- Update a particular encoder
 function Arcify:update(num, delta)
-    if not self.is_active_ then
-        return
-    end
     local encoder_mapping = self.encoders_[num]
     local param = self.params_[encoder_mapping]
     if encoder_mapping and param then
@@ -308,18 +302,6 @@ function Arcify:param_name_at_encoder(enc_num)
     if id then
         return self.params_[id].friendly_name
     end
-end
-
-function Arcify:is_active()
-    return self.is_active_
-end
-
-function Arcify:activate()
-    self.is_active_ = true
-end
-
-function Arcify:deactivate()
-    self.is_active_ = false
 end
 
 function Arcify:redraw()
