@@ -133,9 +133,12 @@ end
 local function params_as_options(self)
     local param_names = {}
     table.insert(param_names, NO_ASSIGMENT)
-    for name, _ in pairs(self.params_) do
-        table.insert(param_names, name)
+
+    local sorted_params = tab.sort(self.params_)
+    for idx, key_name in pairs(sorted_params) do
+        table.insert(param_names, key_name)
     end
+
     return param_names
 end
 
@@ -189,22 +192,6 @@ function Arcify:add_params()
     params:add_separator()
     for i = 1, 4 do
         build_encoder_mapping_param(self, i)
-    end
-
-    -- defaults
-    local options_index = {}
-    for i, opt in ipairs(params_as_options(self)) do
-        options_index[opt] = i
-    end
-
-    for i = 1, 4 do
-        local enc = self.encoders_[i]
-        if enc then
-            local id = "arc_encoder" .. i .. "_mapping"
-            local value = options_index[enc]
-            print(id, value, enc)
-            params:set(id, value)
-        end
     end
 end
 
