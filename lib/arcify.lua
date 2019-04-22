@@ -11,6 +11,8 @@ local NO_ASSIGMENT = "none"
 local VALID_ORIENTATIONS = {0, 180}
 local INTEGER_SCALE_FACTOR = 0.000001
 local DEFAULT_SCALE = 0.001
+local SHIFT_KEYS = {"none", "key 2", "key 3"}
+local SHIFT_MODE = {"toggle", "hold"}
 
 -- utility functions
 local function round_delta(delta)
@@ -118,8 +120,14 @@ local function redraw_ring(self, num, e)
 end
 
 local function redraw_all(self)
+    local enc = self.encoders_
+
+    if self.is_shifted_ then
+        enc = self.shift_encoders_
+    end
+
     self.a_:all(0)
-    for num, name in ipairs(self.encoders_) do
+    for num, name in ipairs(enc) do
         local param = self.params_[name]
         if param then
             redraw_ring(self, num, param)
@@ -142,19 +150,30 @@ local function params_as_options(self)
     return param_names
 end
 
-local function build_encoder_mapping_param(self, encoder_num)
+local function build_encoder_mapping_param(self, encoder_num, is_shift)
     local opts = params_as_options(self)
-    local param_id = "arc_encoder" .. encoder_num .. "_mapping"
+
+    local offset = 0
+    if is_shift then
+        offset = 4
+    end
+
+    local param_id = "arc_encoder" .. encoder_num + offset .. "_mapping"
+    local name = "Arc #" .. encoder_num
+    if is_shift then
+        name = "[shift] Arc #" .. encoder_num
+    end
+
     params:add {
         type = "option",
         id = param_id,
-        name = "Arc #" .. encoder_num,
+        name = name,
         options = opts,
         default = 1,
         action = function(value)
             local opt_name = opts[value]
             if self.params_[opt_name] then
-                self:map_encoder(encoder_num, opt_name)
+                self:map_encoder(encoder_num, opt_name, is_shift)
             elseif opt_name == NO_ASSIGMENT then
                 self:clear_encoder_mapping(encoder_num)
             end
@@ -168,6 +187,8 @@ function Arcify.new(arc_obj, update_self, update_rate)
     ap.a_ = arc_obj or arc.connect()
     ap.params_ = {}
     ap.encoders_ = default_encoder_state()
+    ap.shift_encoders_ = default_encoder_state()
+    ap.is_shifted_ = false
     ap.update_self_ = do_update_self or true -- create a callback by default
     ap.update_rate_ = update_rate or 1 / 25 -- 25 fps default
 
@@ -192,6 +213,33 @@ function Arcify:add_params()
     params:add_separator()
     for i = 1, 4 do
         build_encoder_mapping_param(self, i)
+    end
+
+    params:add_separator()
+    params:add {
+        type = "option",
+        id = "arc_shift_key",
+        name = "shift key",
+        options = SHIFT_KEYS,
+        default = 1
+    }
+
+    params:add {
+        type = "option",
+        id = "arc_shift_mode",
+        name = "shift mode",
+        options = SHIFT_MODE,
+        default = 1
+    }
+    params:add_separator()
+
+    for i = 1, 4 do
+        build_encoder_mapping_param(self, i, true)
+    end
+
+    local options_index = {}
+    for i, opt in ipairs(params_as_options(self)) do
+        options_index[opt] = i
     end
 end
 
@@ -239,7 +287,7 @@ function Arcify:register(name_, scale_, is_rounded_)
     return true
 end
 
-function Arcify:map_encoder(position, param_name)
+function Arcify:map_encoder(position, param_name, is_shift)
     if param_name == "none" then
         return
     elseif position < 1 or position > 4 then
@@ -249,7 +297,11 @@ function Arcify:map_encoder(position, param_name)
         print("Invalid parameter name: " .. param_name .. "at" .. position)
         return
     end
-    self.encoders_[position] = param_name
+    if is_shift then
+        self.shift_encoders_[position] = param_name
+    else
+        self.encoders_[position] = param_name
+    end
 end
 
 function Arcify:clear_encoder_mapping(position)
@@ -267,6 +319,11 @@ end
 --- Update a particular encoder
 function Arcify:update(num, delta)
     local encoder_mapping = self.encoders_[num]
+
+    if self.is_shifted_ then
+        encoder_mapping = self.shift_encoders_[num]
+    end
+
     local param = self.params_[encoder_mapping]
     if encoder_mapping and param then
         local new_delta = scale_delta(delta, param.scale)
@@ -291,6 +348,29 @@ end
 
 function Arcify:redraw()
     redraw_all(self)
+end
+
+function Arcify:handle_shift(key_pressed, key_state)
+    local key_num = params:get("arc_shift_key")
+    local key_mode = SHIFT_MODE[params:get("arc_shift_mode")]
+
+    if not key_num or key_num == 1 then
+        return
+    end
+
+    if key_num == key_pressed then
+        if key_mode == "toggle" and key_state == 1 then
+            if self.is_shifted_ then
+                print("SHIFT IS OFF")
+                self.is_shifted_ = false
+                self:redraw()
+            else
+                print("SHIFT IS ON")
+                self.is_shifted_ = true
+                self:redraw()
+            end
+        end
+    end
 end
 
 return Arcify
