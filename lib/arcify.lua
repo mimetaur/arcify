@@ -175,7 +175,7 @@ local function build_encoder_mapping_param(self, encoder_num, is_shift)
             if self.params_[opt_name] then
                 self:map_encoder(encoder_num, opt_name, is_shift)
             elseif opt_name == NO_ASSIGMENT then
-                self:clear_encoder_mapping(encoder_num)
+                self:clear_encoder_mapping(encoder_num, is_shift)
             end
         end
     }
@@ -212,7 +212,7 @@ end
 function Arcify:add_params()
     params:add_separator()
     for i = 1, 4 do
-        build_encoder_mapping_param(self, i)
+        build_encoder_mapping_param(self, i, false)
     end
 
     params:add_separator()
@@ -235,11 +235,6 @@ function Arcify:add_params()
 
     for i = 1, 4 do
         build_encoder_mapping_param(self, i, true)
-    end
-
-    local options_index = {}
-    for i, opt in ipairs(params_as_options(self)) do
-        options_index[opt] = i
     end
 end
 
@@ -304,12 +299,16 @@ function Arcify:map_encoder(position, param_name, is_shift)
     end
 end
 
-function Arcify:clear_encoder_mapping(position)
+function Arcify:clear_encoder_mapping(position, is_shift)
     if position < 1 or position > 4 then
         print("Invalid arc encoder number: " .. position)
         return
     end
-    self.encoders_[position] = false
+    if is_shift then
+        self.shift_encoders_[position] = false
+    else
+        self.encoders_[position] = false
+    end
 end
 
 function Arcify:clear_all_encoder_mappings()
@@ -363,11 +362,9 @@ function Arcify:handle_shift(key_pressed, key_state)
             if self.is_shifted_ then
                 print("SHIFT IS OFF")
                 self.is_shifted_ = false
-                self:redraw()
             else
                 print("SHIFT IS ON")
                 self.is_shifted_ = true
-                self:redraw()
             end
         end
     end
