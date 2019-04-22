@@ -359,11 +359,15 @@ function Arcify:handle_shift(key_pressed, key_state)
 
     if key_num == key_pressed then
         if key_mode == "toggle" and key_state == 1 then
-            if self.is_shifted_ then
-                self.is_shifted_ = false
-            else
-                self.is_shifted_ = true
-            end
+            self.is_shifted_ = not self.is_shifted_
+        end
+
+        if key_mode == "hold" and key_state == 1 then
+            self.is_shifted_ = true
+        end
+
+        if key_mode == "hold" and key_state == 0 then
+            self.is_shifted_ = false
         end
     end
 end
