@@ -360,10 +360,8 @@ function Arcify:handle_shift(key_pressed, key_state)
     if key_num == key_pressed then
         if key_mode == "toggle" and key_state == 1 then
             if self.is_shifted_ then
-                print("SHIFT IS OFF")
                 self.is_shifted_ = false
             else
-                print("SHIFT IS ON")
                 self.is_shifted_ = true
             end
         end
