@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>arcify docs</title>
+    <link rel="stylesheet" href="ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>arcify</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>Arcify</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Arcify</code></h1>
+<p>Arcify class.</p>
+<p>
+ Create a new instance to support Arc devices
+</p>
+    <h3>Info:</h3>
+    <ul>
+        <li><strong>Release</strong>: v1.0.0</li>
+        <li><strong>Author</strong>: Mimetaur (https://github.com/mimetaur)</li>
+    </ul>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:new">Arcify:new (arc_obj, update_self, update_rate)</a></td>
+	<td class="summary">Create a new Arcify object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:add_params">Arcify:add_params ()</a></td>
+	<td class="summary">Add Arcify assignment params to the Norns PARAMS screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:register">Arcify:register (name_, scale_, is_rounded_)</a></td>
+	<td class="summary">Register a param to be available to Arcify.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:map_encoder">Arcify:map_encoder (position, param_name, is_shift)</a></td>
+	<td class="summary">Map an encoder to a param.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:clear_encoder_mapping">Arcify:clear_encoder_mapping (position, is_shift)</a></td>
+	<td class="summary">Clear an encoder mapping.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:clear_all_encoder_mappings">Arcify:clear_all_encoder_mappings ()</a></td>
+	<td class="summary">Clear all encoder mappings</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:update">Arcify:update (num, delta)</a></td>
+	<td class="summary">Callback when an encoder is updated.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:param_id_at_encoder">Arcify:param_id_at_encoder (enc_num)</a></td>
+	<td class="summary">Get the param ID value for a particular encoder.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:param_name_at_encoder">Arcify:param_name_at_encoder (enc_num)</a></td>
+	<td class="summary">Get the param Name value for a particular encoder.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:redraw">Arcify:redraw ()</a></td>
+	<td class="summary">Redraw Arc rings.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Arcify:handle_shift">Arcify:handle_shift (key_pressed, key_state)</a></td>
+	<td class="summary">Call this from inside the key() function</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Arcify:new"></a>
+    <strong>Arcify:new (arc_obj, update_self, update_rate)</strong>
+    </dt>
+    <dd>
+    Create a new Arcify object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arc_obj</span>
+         Arc object (optional, creates its own)
+        </li>
+        <li><span class="parameter">update_self</span>
+            <span class="types"><span class="type">bool</span></span>
+         By default, update its rings itself. False to update manually. (optional)
+        </li>
+        <li><span class="parameter">update_rate</span>
+            <span class="types"><span class="type">int</span></span>
+         By default, 25 fps (optional)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="index.html#">Arcify</a></span>
+        Instance of Arcify.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:add_params"></a>
+    <strong>Arcify:add_params ()</strong>
+    </dt>
+    <dd>
+    Add Arcify assignment params to the Norns PARAMS screen.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:register"></a>
+    <strong>Arcify:register (name_, scale_, is_rounded_)</strong>
+    </dt>
+    <dd>
+    Register a param to be available to Arcify.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name_</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         ID of param
+        </li>
+        <li><span class="parameter">scale_</span>
+            <span class="types"><span class="type">number</span></span>
+         Multiplier to manage Arc sensitivity (optional)
+        </li>
+        <li><span class="parameter">is_rounded_</span>
+            <span class="types"><span class="type">bool</span></span>
+         Get rid of floating point values (optional)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:map_encoder"></a>
+    <strong>Arcify:map_encoder (position, param_name, is_shift)</strong>
+    </dt>
+    <dd>
+    Map an encoder to a param.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">position</span>
+            <span class="types"><span class="type">int</span></span>
+         which encoder to map
+        </li>
+        <li><span class="parameter">param_name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         which param ID to map it to
+        </li>
+        <li><span class="parameter">is_shift</span>
+            <span class="types"><span class="type">bool</span></span>
+         if mapping an encoder in shift mode
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:clear_encoder_mapping"></a>
+    <strong>Arcify:clear_encoder_mapping (position, is_shift)</strong>
+    </dt>
+    <dd>
+    Clear an encoder mapping.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">position</span>
+            <span class="types"><span class="type">int</span></span>
+         which encoder to clear
+        </li>
+        <li><span class="parameter">is_shift</span>
+            <span class="types"><span class="type">bool</span></span>
+         if mapping an encoder in shift mode
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:clear_all_encoder_mappings"></a>
+    <strong>Arcify:clear_all_encoder_mappings ()</strong>
+    </dt>
+    <dd>
+    Clear all encoder mappings
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:update"></a>
+    <strong>Arcify:update (num, delta)</strong>
+    </dt>
+    <dd>
+    Callback when an encoder is updated.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">num</span>
+            <span class="types"><span class="type">int</span></span>
+         which arc encoder is updated
+        </li>
+        <li><span class="parameter">delta</span>
+            <span class="types"><span class="type">number</span></span>
+         how much it is updated
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:param_id_at_encoder"></a>
+    <strong>Arcify:param_id_at_encoder (enc_num)</strong>
+    </dt>
+    <dd>
+    Get the param ID value for a particular encoder.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">enc_num</span>
+            <span class="types"><span class="type">int</span></span>
+         which arc encoder to get Param ID for
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:param_name_at_encoder"></a>
+    <strong>Arcify:param_name_at_encoder (enc_num)</strong>
+    </dt>
+    <dd>
+    Get the param Name value for a particular encoder.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">enc_num</span>
+            <span class="types"><span class="type">int</span></span>
+         which arc encoder to get Param Name for
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:redraw"></a>
+    <strong>Arcify:redraw ()</strong>
+    </dt>
+    <dd>
+    Redraw Arc rings.
+ You can call this manually instead of letting
+ Arcify refresh itself.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Arcify:handle_shift"></a>
+    <strong>Arcify:handle_shift (key_pressed, key_state)</strong>
+    </dt>
+    <dd>
+    Call this from inside the key() function
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key_pressed</span>
+            <span class="types"><span class="type">int</span></span>
+         is which key was pressed
+        </li>
+        <li><span class="parameter">key_state</span>
+            <span class="types"><span class="type">int</span></span>
+         is whether it is up or down
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-05-02 19:00:04 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
