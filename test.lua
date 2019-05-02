@@ -42,6 +42,13 @@ function init()
     arcify:add_params()
 end
 
+function key(n, z)
+    -- if you want to use a shift key with Arcify
+    -- pass key params in
+    arcify:handle_shift(n, z)
+    redraw()
+end
+
 function redraw()
     screen.clear()
 
