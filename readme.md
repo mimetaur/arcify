@@ -44,3 +44,6 @@ end
 1. Set more elegant and appropriate defaults for the scale (encoder rate) value.
 2. Build shift mode params only if user enables shift mode.
 3. Remove the need to `register()` params, and introspect them from the global `params.params_` table directly.
+
+### LuaDoc
+See [the docs](https://mimetaur.github.io/arcify/doc/)
