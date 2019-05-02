@@ -4,7 +4,7 @@
 -- go to the PARAMS page to assign
 -- params to your Arc
 
-engine.name = "ArcifyTestSine"
+engine.name = "TestSine"
 
 -- create Arcify class and arcify object
 local Arcify = include("lib/arcify")
