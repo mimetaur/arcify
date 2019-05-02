@@ -1,3 +1,10 @@
+--- Arcify class.
+-- Create a new instance to support Arc devices
+--
+-- @classmod Arcify
+-- @release v1.0.0
+-- @author Mimetaur (https://github.com/mimetaur)
+
 local Arcify = {}
 Arcify.__index = Arcify
 
@@ -182,6 +189,10 @@ local function build_encoder_mapping_param(self, encoder_num, is_shift)
 end
 
 --- Create a new Arcify object.
+-- @param arc_obj Arc object (optional, creates its own)
+-- @bool update_self By default, update its rings itself. False to update manually. (optional)
+-- @int update_rate By default, 25 fps (optional)
+-- @treturn Arcify Instance of Arcify.
 function Arcify.new(arc_obj, update_self, update_rate)
     local ap = {}
     ap.a_ = arc_obj or arc.connect()
@@ -209,6 +220,7 @@ function Arcify.new(arc_obj, update_self, update_rate)
     return ap
 end
 
+--- Add Arcify assignment params to the Norns PARAMS screen.
 function Arcify:add_params()
     params:add_separator()
     for i = 1, 4 do
@@ -238,6 +250,10 @@ function Arcify:add_params()
     end
 end
 
+--- Register a param to be available to Arcify.
+-- @string name_ ID of param
+-- @number scale_ Multiplier to manage Arc sensitivity (optional)
+-- @bool is_rounded_ Get rid of floating point values (optional)
 function Arcify:register(name_, scale_, is_rounded_)
     if not name_ then
         print("Param is missing a name. Not registered.")
@@ -282,6 +298,10 @@ function Arcify:register(name_, scale_, is_rounded_)
     return true
 end
 
+--- Map an encoder to a param.
+-- @int position which encoder to map
+-- @string param_name which param ID to map it to
+-- @bool is_shift if mapping an encoder in shift mode
 function Arcify:map_encoder(position, param_name, is_shift)
     if param_name == "none" then
         return
@@ -299,6 +319,9 @@ function Arcify:map_encoder(position, param_name, is_shift)
     end
 end
 
+--- Clear an encoder mapping.
+-- @int position which encoder to clear
+-- @bool is_shift if mapping an encoder in shift mode
 function Arcify:clear_encoder_mapping(position, is_shift)
     if position < 1 or position > 4 then
         print("Invalid arc encoder number: " .. position)
@@ -310,12 +333,14 @@ function Arcify:clear_encoder_mapping(position, is_shift)
         self.encoders_[position] = false
     end
 end
-
+--- Clear all encoder mappings
 function Arcify:clear_all_encoder_mappings()
     self.encoders_ = default_encoder_state()
 end
 
---- Update a particular encoder
+--- Callback when an encoder is updated.
+-- @int num which arc encoder is updated
+-- @number delta how much it is updated
 function Arcify:update(num, delta)
     local encoder_mapping = self.encoders_[num]
 
@@ -334,10 +359,14 @@ function Arcify:update(num, delta)
     end
 end
 
+--- Get the param ID value for a particular encoder.
+-- @int enc_num which arc encoder to get Param ID for
 function Arcify:param_id_at_encoder(enc_num)
     return self.encoders_[enc_num]
 end
 
+--- Get the param Name value for a particular encoder.
+-- @int enc_num which arc encoder to get Param Name for
 function Arcify:param_name_at_encoder(enc_num)
     local id = self.encoders_[enc_num]
     if id then
@@ -345,10 +374,16 @@ function Arcify:param_name_at_encoder(enc_num)
     end
 end
 
+--- Redraw Arc rings.
+-- You can call this manually instead of letting
+-- Arcify refresh itself.
 function Arcify:redraw()
     redraw_all(self)
 end
 
+--- Call this from inside the key() function
+-- @int key_pressed is which key was pressed
+-- @int key_state is whether it is up or down
 function Arcify:handle_shift(key_pressed, key_state)
     local key_num = params:get("arc_shift_key")
     local key_mode = SHIFT_MODE[params:get("arc_shift_mode")]
