@@ -56,7 +56,6 @@ local function apply_mapping(i)
   end
 end
 
-
 local function add_params()
   params:add_group("ARCIFY", 8)
   -- generate a list of modifyable params, excluding the above list
